@@ -1,5 +1,5 @@
 [package]
-name = "php-cap-std"
+name = "stephp-cap-std"
 version = "0.1.0"
 edition = "2024"
 keywords = ["php", "ext-php-rs", "cap-std", "sandbox", "security"]
