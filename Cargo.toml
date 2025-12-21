@@ -1,0 +1,16 @@
+[package]
+name = "php-cap-std"
+version = "0.1.0"
+edition = "2024"
+keywords = ["php", "ext-php-rs", "cap-std", "sandbox", "security"]
+categories = ["api-bindings", "filesystem"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ext-php-rs = "0.15.2"
+cap-std = "4.0.0"
+
+[profile.release]
+strip = "debuginfo"
