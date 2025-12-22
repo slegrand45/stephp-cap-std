@@ -56,6 +56,40 @@ impl StephpCapStdDir {
         }
         Ok(StephpCapStdEntries::new(entries))
     }
+
+    #[php(name = "open_dir")]
+    pub fn open_dir(&self, path: String) -> Result<Self, String> {
+        let inner = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let dir = inner.open_dir(path).map_err(|e| e.to_string())?;
+        Ok(StephpCapStdDir { inner: Mutex::new(dir) })
+    }
+
+    #[php(name = "create_dir")]
+    pub fn create_dir(&self, path: String) -> Result<(), String> {
+        let inner = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        match inner.create_dir(path) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+
+    #[php(name = "create_dir_all")]
+    pub fn create_dir_all(&self, path: String) -> Result<(), String> {
+        let inner = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        match inner.create_dir_all(path) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
 }
 
 #[php_impl]

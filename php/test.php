@@ -30,7 +30,7 @@ foreach ($rdir as $key => $name) {
     $firstPass[$key] = $name;
 }
 if (count($firstPass) !== $count) {
-    echo "first pass: $count !== " . count($firstPass) . "\n";
+    die("first pass: $count !== " . count($firstPass) . "\n");
 }
 
 $secondPass = [];
@@ -38,7 +38,7 @@ foreach ($rdir as $key => $name) {
     $secondPass[$key] = $name;
 }
 if ($firstPass !== $secondPass) {
-    echo "second pass: $firstPass !== " . $secondPass . "\n";
+    die("second pass: $firstPass !== " . $secondPass . "\n");
 }
 
 $rdir->rewind();
@@ -47,5 +47,35 @@ if ($rdir->valid()) {
     $rdir->next();
     echo "OK (first file : $name)\n";
 } else {
-    echo "FAIL (empty directory or wrong valid() method)\n";
+    die("FAIL (empty directory or wrong valid() method)\n");
+}
+
+$newdir = 'test-stephp-cap-std';
+$newdir_path = $ROOT . '/' . $newdir;
+if (! is_dir($newdir_path)) {
+    $dir->create_dir($newdir);
+    if (! is_dir($newdir_path)) {
+        die("unable to create dir $newdir\n");
+    }
+}
+try {
+    $forbidden_path = $ROOT . '/../' . $newdir;
+    $dir->create_dir($forbidden_path);
+    die("create_dir($forbidden_path) must fail");
+} catch (\Exception $e) {
+    // ok
+}
+
+$newdirall = 'test-stephp-cap-std/a/b/🐘/c';
+$newdirall_path = $ROOT . '/' . $newdirall;
+if (! is_dir($newdirall_path)) {
+    $dir->create_dir_all($newdirall);
+    if (! is_dir($newdirall_path)) {
+        die("unable to create dir $newdirall\n");
+    }
+}
+
+$testdir = $dir->open_dir($newdir);
+if (! is_a($testdir, 'StephpCapStdDir')) {
+    die('dir->open_dir() should return an StephpCapStdDir object');
 }
