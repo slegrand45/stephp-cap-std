@@ -1,7 +1,7 @@
 #![cfg_attr(windows, feature(abi_vectorcall))]
 
-use ext_php_rs::prelude::*;
 use crate::filetype;
+use ext_php_rs::prelude::*;
 
 #[php_class]
 pub struct StephpCapStdMetadata {
@@ -13,8 +13,6 @@ impl StephpCapStdMetadata {
     #[php(name = "file_type")]
     pub fn file_type(&self) -> filetype::StephpCapStdFileType {
         let file_type = self.inner.file_type();
-        filetype::StephpCapStdFileType {
-            inner: file_type
-        }
+        filetype::StephpCapStdFileType { inner: file_type }
     }
 }
