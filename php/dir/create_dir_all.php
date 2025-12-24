@@ -10,9 +10,9 @@ function create_dir_all(string $root) {
     if (! is_dir($newdirall_path)) {
         $dir->create_dir_all($newdirall);
         if (is_dir($newdirall_path)) {
-            ok("dir: all directories $newdirall created");
+            ok("dir: create_dir_all: all directories $newdirall created");
         } else {
-            ko("dir: unable to create all directories $newdirall");
+            ko("dir: create_dir_all: unable to create all directories $newdirall");
         }
     }
     if (is_dir($newdirall_path)) {

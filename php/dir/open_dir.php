@@ -12,8 +12,11 @@ function open_dir(string $root) {
     }
     $testdir = $dir->open_dir($newdir);
     if (is_a($testdir, 'StephpCapStdDir')) {
-        ok('dir: open_dir() returned an StephpCapStdDir object');
+        ok('dir: open_dir: open_dir() returned an StephpCapStdDir object');
     } else {
-        ko('dir: open_dir() should return an StephpCapStdDir object');
+        ko('dir: open_dir: open_dir() should return an StephpCapStdDir object');
+    }
+    if (is_dir($newdir_path)) {
+        rmdir($newdir_path);
     }
 }

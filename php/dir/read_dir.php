@@ -7,16 +7,16 @@ function read_dir(string $root) {
     $dir = stephp_cap_std_open_ambient_dir($ambient_auth, $root);
     $rdir = $dir->read_dir(".");
     if (is_a($rdir, 'StephpCapStdEntries')) {
-        ok('dir: read_dir() returned an StephpCapStdEntries object');
+        ok('dir: read_dir: read_dir() returned an StephpCapStdEntries object');
     } else {
-        ko('dir: read_dir() should return an StephpCapStdEntries object');
+        ko('dir: read_dir: read_dir() should return an StephpCapStdEntries object');
     }
 
     $count = count($rdir);
     if ($count >= 0) {
-        ok('dir: count(rdir) = ' . $count);
+        ok('dir: read_dir: count(rdir) = ' . $count);
     } else {
-        ko('dir: count(rdir) = ' . count($rdir) . ', should be >= 0');
+        ko('dir: read_dir: count(rdir) = ' . count($rdir) . ', should be >= 0');
     }
 
     $firstPass = [];
@@ -24,9 +24,9 @@ function read_dir(string $root) {
         $firstPass[$key] = $name;
     }
     if (count($firstPass) === $count) {
-        ok('dir: count(firstPass) === count');
+        ok('dir: read_dir: count(firstPass) === count');
     } else {
-        ko("dir: first pass: $count !== " . count($firstPass));
+        ko("dir: read_dir: first pass: $count !== " . count($firstPass));
     }
 
     $secondPass = [];
@@ -34,17 +34,17 @@ function read_dir(string $root) {
         $secondPass[$key] = $name;
     }
     if ($firstPass === $secondPass) {
-        ok('dir: firstPass === secondPass');
+        ok('dir: read_dir: firstPass === secondPass');
     } else {
-        ko('dir: firstPass (' . var_export($firstPass) . ') !== secondPass (' . var_export($secondPass) . ')');
+        ko('dir: read_dir: firstPass (' . var_export($firstPass) . ') !== secondPass (' . var_export($secondPass) . ')');
     }
 
     $rdir->rewind();
     if ($rdir->valid()) {
         $name = $rdir->current();
         $rdir->next();
-        ok("dir: rewind: first file = $name");
+        ok("dir: read_dir: rewind: first file = $name");
     } else {
-        ko('dir: rewind: empty directory or wrong valid() method');
+        ko('dir: read_dir: rewind: empty directory or wrong valid() method');
     }
 }

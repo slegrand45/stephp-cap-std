@@ -10,17 +10,17 @@ function create_dir(string $root) {
     if (! is_dir($newdir_path)) {
         $dir->create_dir($newdir);
         if (is_dir($newdir_path)) {
-            ok("dir: create_dir($newdir)");
+            ok("dir: create_dir: create_dir($newdir)");
         } else {
-            ko("dir: unable to create dir $newdir");
+            ko("dir: create_dir: unable to create dir $newdir");
         }
     }
     try {
         $forbidden_path = $root . '/../' . $newdir;
         $dir->create_dir($forbidden_path);
-        ko("dir: create_dir($forbidden_path) is forbidden and must fail");
+        ko("dir: create_dir: create_dir($forbidden_path) is forbidden and must fail");
     } catch (\Exception $e) {
-        ok("dir: unable to create forbidden $forbidden_path");
+        ok("dir: create_dir: unable to create forbidden $forbidden_path");
     }
     if (is_dir($newdir_path)) {
         rmdir($newdir_path);
