@@ -1,5 +1,8 @@
 #![cfg_attr(windows, feature(abi_vectorcall))]
 
+mod filetype;
+mod metadata;
+
 use ext_php_rs::{prelude::*, zend::ce};
 
 #[php_class]
@@ -76,7 +79,12 @@ impl StephpCapStdDir {
             Ok(size) => Ok(size),
             Err(e) => Err(e.to_string()),
         }
+    }
 
+    #[php(name = "dir_metadata")]
+    pub fn dir_metadata(&self) -> Result<metadata::StephpCapStdMetadata, String> {
+        let metadata = self.inner.dir_metadata().map_err(|e| e.to_string())?;
+        Ok(metadata::StephpCapStdMetadata { inner: metadata })
     }
 }
 
@@ -128,9 +136,7 @@ pub fn stephp_cap_std_open_ambient_dir(
 ) -> Result<StephpCapStdDir, String> {
     let dir = cap_std::fs::Dir::open_ambient_dir(&path, auth.authority)
         .map_err(|e| format!("Unable to open '{}' : {}", path, e))?;
-    Ok(StephpCapStdDir {
-        inner: dir,
-    })
+    Ok(StephpCapStdDir { inner: dir })
 }
 
 #[php_module]
@@ -141,4 +147,6 @@ pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
         .class::<StephpCapStdAmbientAuthority>()
         .class::<StephpCapStdDir>()
         .class::<StephpCapStdEntries>()
+        .class::<metadata::StephpCapStdMetadata>()
+        .class::<filetype::StephpCapStdFileType>()
 }
