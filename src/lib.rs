@@ -4,6 +4,7 @@ mod dir;
 mod entries;
 mod filetype;
 mod metadata;
+mod permissions;
 
 use ext_php_rs::prelude::*;
 
