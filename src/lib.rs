@@ -5,6 +5,7 @@ mod entries;
 mod filetype;
 mod metadata;
 mod permissions;
+mod systemtime;
 
 use ext_php_rs::prelude::*;
 
@@ -40,4 +41,5 @@ pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
         .class::<entries::StephpCapStdEntries>()
         .class::<metadata::StephpCapStdMetadata>()
         .class::<filetype::StephpCapStdFileType>()
+        .class::<systemtime::StephpCapStdSystemTime>()
 }

@@ -16,4 +16,27 @@ function dir_metadata(string $root) {
     } else {
         ko('dir: dir_metadata: file_type() should be dir');
     }
+    if (! $metadata->is_file()) {
+        ok('dir: dir_metadata: is_file() is false');
+    } else {
+        ko('dir: dir_metadata: is_file() should be false');
+    }
+    if (! $metadata->is_symlink()) {
+        ok('dir: dir_metadata: is_symlink() is false');
+    } else {
+        ko('dir: dir_metadata: is_symlink() should be false');
+    }
+    $len = $metadata->len();
+    if ($metadata->len() > 0) {
+        ok('dir: dir_metadata: len() > 0');
+    } else {
+        ko('dir: dir_metadata: len() should be greater than zero, returned ' . $len);
+    }
+    $ts = (int) $metadata->modified()->to_unix_timestamp_seconds_utc();
+    $dt = (new \DateTimeImmutable())->setTimestamp($ts);
+    if ($ts > 0 && (int) $dt->format('U') > 0 && $ts === (int) $dt->format('U')) {
+        ok('dir: dir_metadata: modified timestamp (' . $ts . ', ' . $dt->format('Y-m-d H:i:s') . ')');
+    } else {
+        ko('dir: dir_metadata: wrong modified timestamp(' . $ts . ', ' . $dt->format('Y-m-d H:i:s') . ')');
+    }
 }

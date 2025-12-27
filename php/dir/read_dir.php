@@ -14,7 +14,7 @@ function read_dir(string $root) {
 
     $count = count($rdir);
     if ($count >= 0) {
-        ok('dir: read_dir: count(rdir) = ' . $count);
+        ok('dir: read_dir: count(rdir) >= 0, returned ' . $count);
     } else {
         ko('dir: read_dir: count(rdir) = ' . count($rdir) . ', should be >= 0');
     }

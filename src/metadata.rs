@@ -2,6 +2,8 @@
 
 use crate::filetype;
 use crate::permissions;
+use crate::systemtime;
+use crate::systemtime::StephpCapStdSystemTime;
 use ext_php_rs::prelude::*;
 use std::cell::RefCell;
 
@@ -41,6 +43,26 @@ impl StephpCapStdMetadata {
     #[php(name = "permissions")]
     pub fn permissions(&self) -> permissions::StephpCapStdPermissions {
         let permissions = self.inner.permissions();
-        permissions::StephpCapStdPermissions { inner: RefCell::new(permissions) }
+        permissions::StephpCapStdPermissions {
+            inner: RefCell::new(permissions),
+        }
+    }
+
+    #[php(name = "modified")]
+    pub fn modified(&self) -> Result<systemtime::StephpCapStdSystemTime, String> {
+        let modified = self.inner.modified().map_err(|e| e.to_string())?;
+        Ok(StephpCapStdSystemTime { inner: modified })
+    }
+
+    #[php(name = "accessed")]
+    pub fn accessed(&self) -> Result<systemtime::StephpCapStdSystemTime, String> {
+        let accessed = self.inner.accessed().map_err(|e| e.to_string())?;
+        Ok(StephpCapStdSystemTime { inner: accessed })
+    }
+
+    #[php(name = "created")]
+    pub fn created(&self) -> Result<systemtime::StephpCapStdSystemTime, String> {
+        let created = self.inner.created().map_err(|e| e.to_string())?;
+        Ok(StephpCapStdSystemTime { inner: created })
     }
 }
