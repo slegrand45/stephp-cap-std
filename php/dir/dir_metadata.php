@@ -27,8 +27,8 @@ function dir_metadata(string $root) {
         ko('dir: dir_metadata: is_symlink() should be false');
     }
     $len = $metadata->len();
-    if ($metadata->len() > 0) {
-        ok('dir: dir_metadata: len() > 0');
+    if ($len > 0) {
+        ok('dir: dir_metadata: len() > 0, = ' . $len);
     } else {
         ko('dir: dir_metadata: len() should be greater than zero, returned ' . $len);
     }
@@ -38,5 +38,23 @@ function dir_metadata(string $root) {
         ok('dir: dir_metadata: modified timestamp (' . $ts . ', ' . $dt->format('Y-m-d H:i:s') . ')');
     } else {
         ko('dir: dir_metadata: wrong modified timestamp(' . $ts . ', ' . $dt->format('Y-m-d H:i:s') . ')');
+    }
+    $uid = $metadata->uid();
+    if ($uid >= 0) {
+        ok('dir: dir_metadata: uid() >= 0, = ' . $uid);
+    } else {
+        ko('dir: dir_metadata: uid() should be greater or equal to zero, returned ' . $uid);
+    }
+    $gid = $metadata->gid();
+    if ($gid >= 0) {
+        ok('dir: dir_metadata: gid() >= 0, = ' . $gid);
+    } else {
+        ko('dir: dir_metadata: gid() should be greater or equal to zero, returned ' . $gid);
+    }
+    $size = $metadata->size();
+    if ($size >= 0) {
+        ok('dir: dir_metadata: size() > 0, = ' . $size);
+    } else {
+        ko('dir: dir_metadata: size() should be greater than zero, returned ' . $size);
     }
 }

@@ -10,7 +10,7 @@ function copy(string $root) {
         $file = basename($tmp);
         $size = $dir->copy($file, $dir, "copy-$file");
         if ($size === 0 && is_file("$root/copy-$file")) {
-            ok('dir: copy: copy of $tmp to copy-$file succeeds');
+            ok('dir: copy: copy of ' . $tmp . ' to copy-' . $file . ' succeeds');
         }
         if ($size !== 0) {
             ko("dir: copy: copy of temporary file $tmp should have a size of zero");
