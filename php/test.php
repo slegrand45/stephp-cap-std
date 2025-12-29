@@ -11,6 +11,7 @@ include_once('dir/create_dir_all.php');
 include_once('dir/dir_metadata.php');
 include_once('dir/open_dir.php');
 include_once('dir/read_dir.php');
+include_once('file/sync_all.php');
 
 $ROOT = '/tmp';
 tests\ambient_authority();
@@ -21,5 +22,6 @@ tests\dir\dir_metadata($ROOT);
 tests\dir\open_dir($ROOT);
 tests\dir\read_dir($ROOT);
 tests\dir\copy($ROOT);
+tests\file\sync_all($ROOT);
 
 result();

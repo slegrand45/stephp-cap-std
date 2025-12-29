@@ -1,6 +1,7 @@
 #![cfg_attr(windows, feature(abi_vectorcall))]
 
 use crate::entries;
+use crate::file;
 use crate::metadata;
 use ext_php_rs::prelude::*;
 
@@ -41,6 +42,12 @@ impl StephpCapStdDir {
     pub fn open_dir(&self, path: String) -> Result<Self, String> {
         let dir = self.inner.open_dir(path).map_err(|e| e.to_string())?;
         Ok(StephpCapStdDir { inner: dir })
+    }
+
+    #[php(name = "open")]
+    pub fn open(&self, path: String) -> Result<file::StephpCapStdFile, String> {
+        let fd = self.inner.open(path).map_err(|e| e.to_string())?;
+        Ok(file::StephpCapStdFile { inner: fd })
     }
 
     #[php(name = "create_dir")]

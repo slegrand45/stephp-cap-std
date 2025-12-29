@@ -2,6 +2,7 @@
 
 mod dir;
 mod entries;
+mod file;
 mod filetype;
 mod metadata;
 mod permissions;
@@ -40,6 +41,7 @@ pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
         .class::<dir::StephpCapStdDir>()
         .class::<entries::StephpCapStdEntries>()
         .class::<metadata::StephpCapStdMetadata>()
+        .class::<file::StephpCapStdFile>()
         .class::<filetype::StephpCapStdFileType>()
         .class::<systemtime::StephpCapStdSystemTime>()
 }
