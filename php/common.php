@@ -6,9 +6,13 @@ function ok(string $msg) {
     echo ' ✅ OK: ' . $msg . "\n";
 }
 
+function warning(string $msg) {
+    echo '⚠️  WARNING: ' . $msg . "\n";
+}
+
 function ko(string $msg) {
     global $nbKO;
-    echo ' 💥 🔥 KO: ' . $msg . "\n";
+    echo ' ❌ KO: ' . $msg . "\n";
     $nbKO++;
 }
 
@@ -17,6 +21,6 @@ function result() {
     if ($nbKO === 0) {
         echo '🥳 🎉  SUCCESS!' . "\n";
     } else {
-        echo '⚠️  WARNING: ' . $nbKO . ' failure(s)' . "\n";
+        echo '💥 🔥  FAILURE!: ' . $nbKO . ' failure(s)' . "\n";
     }
 }

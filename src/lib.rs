@@ -8,6 +8,7 @@ mod metadata;
 mod permissions;
 mod systemtime;
 
+use std::cell::RefCell;
 use ext_php_rs::prelude::*;
 
 #[php_class]
@@ -32,11 +33,20 @@ pub fn stephp_cap_std_open_ambient_dir(
     Ok(dir::StephpCapStdDir { inner: dir })
 }
 
+#[cfg(unix)]
+#[php_function]
+pub fn stephp_cap_std_permissions_from_mode(mode: u32) -> permissions::StephpCapStdPermissions {
+    permissions::StephpCapStdPermissions {
+        inner: RefCell::new(cap_std::fs::PermissionsExt::from_mode(mode))
+    }
+}
+
 #[php_module]
 pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
     module
         .function(wrap_function!(stephp_cap_std_ambient_authority))
         .function(wrap_function!(stephp_cap_std_open_ambient_dir))
+        .function(wrap_function!(stephp_cap_std_permissions_from_mode))
         .class::<StephpCapStdAmbientAuthority>()
         .class::<dir::StephpCapStdDir>()
         .class::<entries::StephpCapStdEntries>()
@@ -44,4 +54,5 @@ pub fn get_module(module: ModuleBuilder) -> ModuleBuilder {
         .class::<file::StephpCapStdFile>()
         .class::<filetype::StephpCapStdFileType>()
         .class::<systemtime::StephpCapStdSystemTime>()
+        .class::<permissions::StephpCapStdPermissions>()
 }
