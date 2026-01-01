@@ -15,6 +15,7 @@ include_once('file/read.php');
 include_once('file/set_len.php');
 include_once('file/set_permissions.php');
 include_once('file/sync_all.php');
+include_once('file/write.php');
 
 $ROOT = '/tmp';
 tests\ambient_authority();
@@ -29,5 +30,6 @@ tests\file\read($ROOT);
 tests\file\set_len($ROOT);
 tests\file\set_permissions($ROOT);
 tests\file\sync_all($ROOT);
+tests\file\write($ROOT);
 
 result();

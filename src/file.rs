@@ -3,7 +3,10 @@
 use crate::metadata;
 use crate::permissions::StephpCapStdPermissions;
 use ext_php_rs::prelude::*;
+use ext_php_rs::binary::Binary;
+use ext_php_rs::binary_slice::BinarySlice;
 use std::io::Read;
+use std::io::Write;
 use std::sync::Mutex;
 
 #[php_class]
@@ -66,7 +69,7 @@ impl StephpCapStdFile {
     }
 
     #[php(name = "read")]
-    pub fn read(&self, length: usize) -> Result<ext_php_rs::binary::Binary<u8>, String> {
+    pub fn read(&self, length: usize) -> Result<Binary<u8>, String> {
         let mut file = self
             .inner
             .lock()
@@ -74,6 +77,14 @@ impl StephpCapStdFile {
         let mut data = vec![0u8; length];
         let bytes_read = file.read(&mut data).map_err(|e| e.to_string())?;
         data.truncate(bytes_read);
-        Ok(ext_php_rs::binary::Binary::from(data))
+        Ok(Binary::from(data))
+    }
+
+    #[php(name = "write")]
+    pub fn write(&self, data: BinarySlice<u8>) -> Result<usize, String> {
+        let mut file = self.inner.lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        file.write(&data)
+            .map_err(|e| format!("Write error: {}", e))
     }
 }

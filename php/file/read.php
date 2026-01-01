@@ -18,6 +18,10 @@ function read(string $root) {
     } else {
         ko("file: read (string): content should be '$content' but is '$data'");
     }
+    if (is_file($filepath)) {
+        unlink($filepath);
+    }
+
     $filename = 'test-stephp-cap-std-file-reference.png';
     $filepath = $root . '/' . $filename;
     if (! file_exists($filepath)) {
@@ -31,5 +35,8 @@ function read(string $root) {
         ok('file: read (binary): checksum is the same');
     } else {
         ko("file: read (binary): checksum should be '$checksum_file' but is '$checksum_data'");
+    }
+    if (is_file($filepath)) {
+        unlink($filepath);
     }
 }
