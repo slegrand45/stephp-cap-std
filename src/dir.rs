@@ -90,4 +90,10 @@ impl StephpCapStdDir {
         let metadata = self.inner.dir_metadata().map_err(|e| e.to_string())?;
         Ok(metadata::StephpCapStdMetadata { inner: metadata })
     }
+
+    #[php(name = "canonicalize")]
+    pub fn canonicalize(&self, path: String) -> Result<String, String> {
+        let canon = self.inner.canonicalize(path).map_err(|e| e.to_string())?;
+        Ok(canon.to_string_lossy().to_string())
+    }
 }
