@@ -4,6 +4,7 @@ use crate::entries;
 use crate::file;
 use crate::metadata;
 use ext_php_rs::prelude::*;
+use std::sync::Mutex;
 
 #[php_class]
 pub struct StephpCapStdDir {
@@ -47,15 +48,19 @@ impl StephpCapStdDir {
     #[php(name = "open")]
     pub fn open(&self, path: String) -> Result<file::StephpCapStdFile, String> {
         let fd = self.inner.open(path).map_err(|e| e.to_string())?;
-        Ok(file::StephpCapStdFile { inner: fd })
+        Ok(file::StephpCapStdFile {
+            inner: Mutex::new(fd),
+        })
     }
-    
+
     #[php(name = "create")]
     pub fn create(&self, path: String) -> Result<file::StephpCapStdFile, String> {
         let fd = self.inner.create(path).map_err(|e| e.to_string())?;
-        Ok(file::StephpCapStdFile { inner: fd })
+        Ok(file::StephpCapStdFile {
+            inner: Mutex::new(fd),
+        })
     }
-    
+
     #[php(name = "create_dir")]
     pub fn create_dir(&self, path: String) -> Result<(), String> {
         match self.inner.create_dir(path) {

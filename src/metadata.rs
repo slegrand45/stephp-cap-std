@@ -4,9 +4,9 @@ use crate::filetype;
 use crate::permissions;
 use crate::systemtime;
 use crate::systemtime::StephpCapStdSystemTime;
+use cap_std::fs::MetadataExt;
 use ext_php_rs::prelude::*;
 use std::cell::RefCell;
-use cap_std::fs::MetadataExt;
 
 #[php_class]
 pub struct StephpCapStdMetadata {
