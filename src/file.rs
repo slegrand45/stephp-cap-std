@@ -6,6 +6,7 @@ use ext_php_rs::prelude::*;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
 use std::io::Read;
+use std::io::Seek;
 use std::io::Write;
 use std::sync::Mutex;
 
@@ -86,5 +87,22 @@ impl StephpCapStdFile {
             .map_err(|_| "Mutex lock error".to_string())?;
         file.write(&data)
             .map_err(|e| format!("Write error: {}", e))
+    }
+
+    #[php(name = "flush")]
+    pub fn flush(&self) -> Result<(), String> {
+        let mut file = self.inner.lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        file.flush()
+            .map_err(|e| format!("Flush error: {}", e))?;
+        Ok(())
+    }
+
+    #[php(name = "rewind")]
+    pub fn rewind(&self) -> Result<(), String> {
+        let mut file = self.inner.lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        file.rewind().map_err(|e| e.to_string())?;
+        Ok(())
     }
 }

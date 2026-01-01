@@ -37,6 +37,9 @@ function write(string $root) {
     $content = file_get_contents($refpath);
     $fd = $dir->create($filename);
     $nb = $fd->write($content);
+    $fd->flush();
+    $fd->rewind();
+    $nb = $fd->write($content);
     if ($nb === strlen($content)) {
         ok('file: write (binary): write() returns ' . $nb);
     } else {
