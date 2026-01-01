@@ -6,6 +6,7 @@ use crate::metadata;
 use ext_php_rs::prelude::*;
 use std::sync::Mutex;
 use ext_php_rs::binary::Binary;
+use ext_php_rs::binary_slice::BinarySlice;
 
 #[php_class]
 pub struct StephpCapStdDir {
@@ -97,10 +98,16 @@ impl StephpCapStdDir {
         let canon = self.inner.canonicalize(path).map_err(|e| e.to_string())?;
         Ok(canon.to_string_lossy().to_string())
     }
-    
+
     #[php(name = "read")]
     pub fn read(&self, path: String) -> Result<Binary<u8>, String> {
         let data = self.inner.read(path).map_err(|e| e.to_string())?;
         Ok(Binary::from(data))
+    }
+
+    #[php(name = "write")]
+    pub fn write(&self, path: String, data: BinarySlice<u8>) -> Result<(), String> {
+        self.inner.write(path, data.as_ref()).map_err(|e| e.to_string())?;
+        Ok(())
     }
 }
