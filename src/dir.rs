@@ -87,6 +87,14 @@ impl StephpCapStdDir {
         }
     }
 
+    #[php(name = "rename")]
+    pub fn rename(&self, from: &str, to_dir: &StephpCapStdDir, to: &str) -> Result<(), String> {
+        match self.inner.rename(from, &to_dir.inner, to) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+
     #[php(name = "dir_metadata")]
     pub fn dir_metadata(&self) -> Result<metadata::StephpCapStdMetadata, String> {
         let metadata = self.inner.dir_metadata().map_err(|e| e.to_string())?;
