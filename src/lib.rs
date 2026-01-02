@@ -28,7 +28,7 @@ pub fn stephp_cap_std_open_ambient_dir(
     auth: &StephpCapStdAmbientAuthority,
     path: &str,
 ) -> Result<dir::StephpCapStdDir, String> {
-    let dir = cap_std::fs::Dir::open_ambient_dir(&path, auth.authority)
+    let dir = cap_std::fs::Dir::open_ambient_dir(path, auth.authority)
         .map_err(|e| format!("Unable to open '{}' : {}", path, e))?;
     Ok(dir::StephpCapStdDir { inner: dir })
 }
