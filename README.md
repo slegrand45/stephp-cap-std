@@ -82,10 +82,13 @@ try {
 
 ## Available API
 
-The main exposed classes are:
+> **Note:** The bindings are currently a work in progress and do not yet cover the entire `cap-std` API. Many more methods are available than those listed below.
+
+The main exposed classes include:
 
 *   **`StephpCapStdAmbientAuthority`**: Represents the authority to access global system resources.
-*   **`StephpCapStdDir`**: Represents an opened directory. Main methods:
+*   **`StephpCapStdDir`**: Represents an opened directory. Methods such as:
+    *   `open(string $path)`
     *   `open_dir(string $path)`
     *   `create_dir(string $path)`
     *   `read_file(string $path)`
@@ -94,6 +97,14 @@ The main exposed classes are:
     *   `remove_dir(string $path)`
     *   `metadata(string $path)`
     *   `canonicalize(string $path)`
+    *   ...
+*   **`StephpCapStdFile`**: Represents an opened file handle. It provides low-level operations such as: 
+    *   `read(int $length)`
+    *   `write(string $data)`
+    *   `sync_all()`
+    *   ...
+
+Other classes like `StephpCapStdMetadata`, `StephpCapStdPermissions`, and `StephpCapStdEntries` are also used internally or returned by the methods above.
 
 ## Limitations and Warnings
 
