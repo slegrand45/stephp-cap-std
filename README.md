@@ -2,7 +2,7 @@
 
 **Version 0.1.0**
 
-`stephp-cap-std` is an experimental PHP extension written in Rust. It provides bindings to the [cap-std](https://github.com/bytecodealliance/cap-std) crate, offering a capability-based security approach for filesystem access.
+`stephp-cap-std` is an experimental PHP extension written in Rust. It provides bindings to the [cap-std](https://github.com/bytecodealliance/cap-std) crate, offering a capability-based security approach for filesystem access. This project is made possible thanks to the [ext-php-rs](https://github.com/extphprs/ext-php-rs) project, which provides the tools to build PHP extensions with Rust.
 
 The primary goal is to enable robust **sandboxing** within PHP scripts. Unlike native PHP filesystem functions, this extension ensures that once a directory is opened, it is impossible to access files outside of that directory tree (e.g., via `../../`), providing strong protection against directory traversal attacks.
 
