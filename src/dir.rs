@@ -113,6 +113,12 @@ impl StephpCapStdDir {
         Ok(Binary::from(data))
     }
 
+    #[php(name = "read_to_string")]
+    pub fn read_to_string(&self, path: &str) -> Result<String, String> {
+        let s = self.inner.read_to_string(path).map_err(|e| e.to_string())?;
+        Ok(s)
+    }
+
     #[php(name = "write")]
     pub fn write(&self, path: &str, data: BinarySlice<u8>) -> Result<(), String> {
         self.inner.write(path, data.as_ref()).map_err(|e| e.to_string())?;
