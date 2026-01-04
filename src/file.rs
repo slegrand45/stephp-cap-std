@@ -81,6 +81,30 @@ impl StephpCapStdFile {
         Ok(Binary::from(data))
     }
 
+    #[php(name = "read_to_end")]
+    pub fn read_to_end(&self) -> Result<Binary<u8>, String> {
+        let mut file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let mut data = Vec::new();
+        let bytes_read = file.read_to_end(&mut data).map_err(|e| e.to_string())?;
+        data.truncate(bytes_read);
+        Ok(Binary::from(data))
+    }
+
+    #[php(name = "read_to_string")]
+    pub fn read_to_string(&self) -> Result<String, String> {
+        let mut file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let mut data = String::new();
+        let bytes_read = file.read_to_string(&mut data).map_err(|e| e.to_string())?;
+        data.truncate(bytes_read);
+        Ok(data)
+    }
+
     #[php(name = "write")]
     pub fn write(&self, data: BinarySlice<u8>) -> Result<usize, String> {
         let mut file = self
@@ -107,6 +131,26 @@ impl StephpCapStdFile {
             .lock()
             .map_err(|_| "Mutex lock error".to_string())?;
         file.rewind().map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    #[php(name = "stream_position")]
+    pub fn stream_position(&self) -> Result<u64, String> {
+        let mut file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let pos = file.stream_position().map_err(|e| e.to_string())?;
+        Ok(pos)
+    }
+
+    #[php(name = "seek_relative")]
+    pub fn seek_relative(&self, offset: i64) -> Result<(), String> {
+        let mut file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        file.seek_relative(offset).map_err(|e| e.to_string())?;
         Ok(())
     }
 }

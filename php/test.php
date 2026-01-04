@@ -20,8 +20,11 @@ include_once('dir/remove_file.php');
 include_once('dir/rename.php');
 include_once('dir/write.php');
 include_once('file/read.php');
+include_once('file/read_to_end.php');
+include_once('file/read_to_string.php');
 include_once('file/set_len.php');
 include_once('file/set_permissions.php');
+include_once('file/stream_position.php');
 include_once('file/sync_all.php');
 include_once('file/write.php');
 
@@ -43,8 +46,11 @@ tests\dir\remove_file($ROOT);
 tests\dir\rename($ROOT);
 tests\dir\write($ROOT);
 tests\file\read($ROOT);
+tests\file\read_to_end($ROOT);
+tests\file\read_to_string($ROOT);
 tests\file\set_len($ROOT);
 tests\file\set_permissions($ROOT);
+tests\file\stream_position($ROOT);
 tests\file\sync_all($ROOT);
 tests\file\write($ROOT);
 
