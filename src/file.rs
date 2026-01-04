@@ -2,9 +2,9 @@
 
 use crate::metadata;
 use crate::permissions::StephpCapStdPermissions;
-use ext_php_rs::prelude::*;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
+use ext_php_rs::prelude::*;
 use std::io::Read;
 use std::io::Seek;
 use std::io::Write;
@@ -83,24 +83,28 @@ impl StephpCapStdFile {
 
     #[php(name = "write")]
     pub fn write(&self, data: BinarySlice<u8>) -> Result<usize, String> {
-        let mut file = self.inner.lock()
+        let mut file = self
+            .inner
+            .lock()
             .map_err(|_| "Mutex lock error".to_string())?;
-        file.write(&data)
-            .map_err(|e| format!("Write error: {}", e))
+        file.write(&data).map_err(|e| format!("Write error: {}", e))
     }
 
     #[php(name = "flush")]
     pub fn flush(&self) -> Result<(), String> {
-        let mut file = self.inner.lock()
+        let mut file = self
+            .inner
+            .lock()
             .map_err(|_| "Mutex lock error".to_string())?;
-        file.flush()
-            .map_err(|e| format!("Flush error: {}", e))?;
+        file.flush().map_err(|e| format!("Flush error: {}", e))?;
         Ok(())
     }
 
     #[php(name = "rewind")]
     pub fn rewind(&self) -> Result<(), String> {
-        let mut file = self.inner.lock()
+        let mut file = self
+            .inner
+            .lock()
             .map_err(|_| "Mutex lock error".to_string())?;
         file.rewind().map_err(|e| e.to_string())?;
         Ok(())
