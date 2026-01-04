@@ -3,10 +3,11 @@
 use crate::entries;
 use crate::file;
 use crate::metadata;
-use ext_php_rs::prelude::*;
-use std::sync::Mutex;
+use crate::metadata::StephpCapStdMetadata;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
+use ext_php_rs::prelude::*;
+use std::sync::Mutex;
 
 #[php_class]
 pub struct StephpCapStdDir {
@@ -121,7 +122,9 @@ impl StephpCapStdDir {
 
     #[php(name = "write")]
     pub fn write(&self, path: &str, data: BinarySlice<u8>) -> Result<(), String> {
-        self.inner.write(path, data.as_ref()).map_err(|e| e.to_string())?;
+        self.inner
+            .write(path, data.as_ref())
+            .map_err(|e| e.to_string())?;
         Ok(())
     }
 
@@ -156,5 +159,43 @@ impl StephpCapStdDir {
     #[php(name = "exists")]
     pub fn exists(&self, path: &str) -> bool {
         self.inner.exists(path)
+    }
+
+    #[php(name = "hard_link")]
+    pub fn hard_link(&self, src: &str, dst_dir: &StephpCapStdDir, dst: &str) -> Result<(), String> {
+        match self.inner.hard_link(src, &dst_dir.inner, dst) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+
+    #[php(name = "metadata")]
+    pub fn metadata(&self, path: &str) -> Result<StephpCapStdMetadata, String> {
+        let metadata = self.inner.metadata(path).map_err(|e| e.to_string())?;
+        Ok(metadata::StephpCapStdMetadata { inner: metadata })
+    }
+
+    #[php(name = "read_link")]
+    pub fn read_link(&self, path: &str) -> Result<String, String> {
+        let read = self.inner.read_link(path).map_err(|e| e.to_string())?;
+        Ok(read.to_string_lossy().to_string())
+    }
+
+    #[php(name = "symlink_metadata")]
+    pub fn symlink_metadata(&self, path: &str) -> Result<StephpCapStdMetadata, String> {
+        let metadata = self
+            .inner
+            .symlink_metadata(path)
+            .map_err(|e| e.to_string())?;
+        Ok(metadata::StephpCapStdMetadata { inner: metadata })
+    }
+
+    #[cfg(unix)]
+    #[php(name = "symlink")]
+    pub fn symlink(&self, original: &str, link: &str) -> Result<(), String> {
+        self.inner
+            .symlink(original, link)
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
 }
