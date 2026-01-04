@@ -13,6 +13,13 @@ pub struct StephpCapStdPermissions {
 
 #[php_impl]
 impl StephpCapStdPermissions {
+    #[cfg(unix)]
+    pub fn new(mode: u32) -> Self {
+        Self {
+            inner: RefCell::new(cap_std::fs::Permissions::from_mode(mode)),
+        }
+    }
+
     #[php(name = "readonly")]
     pub fn readonly(&self) -> bool {
         self.inner.borrow().readonly()

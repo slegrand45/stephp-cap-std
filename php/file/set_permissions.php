@@ -3,7 +3,7 @@
 namespace tests\file;
 
 function set_permissions(string $root) {
-    if (function_exists('stephp_cap_std_permissions_from_mode')) {
+    if (method_exists('StephpCapStdPermissions', 'new')) {
         $filename = 'test-stephp-cap-std-file';
         $filepath = $root . '/' . $filename;
         if (! file_exists($filepath)) {
@@ -12,7 +12,7 @@ function set_permissions(string $root) {
         $ambient_auth = stephp_cap_std_ambient_authority();
         $dir = stephp_cap_std_open_ambient_dir($ambient_auth, $root);
         $fd = $dir->create($filename);
-        $permissions = stephp_cap_std_permissions_from_mode(0);
+        $permissions = \StephpCapStdPermissions::new(0);
         $mode = 0o640;
         $permissions->set_mode($mode);
         $r = $fd->set_permissions($permissions);

@@ -4,6 +4,7 @@ use crate::entries;
 use crate::file;
 use crate::metadata;
 use crate::metadata::StephpCapStdMetadata;
+use crate::openoptions::StephpCapStdOpenOptions;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
@@ -51,6 +52,25 @@ impl StephpCapStdDir {
     #[php(name = "open")]
     pub fn open(&self, path: &str) -> Result<file::StephpCapStdFile, String> {
         let fd = self.inner.open(path).map_err(|e| e.to_string())?;
+        Ok(file::StephpCapStdFile {
+            inner: Mutex::new(fd),
+        })
+    }
+
+    #[php(name = "open_with")]
+    pub fn open_with(
+        &self,
+        path: &str,
+        options: &StephpCapStdOpenOptions,
+    ) -> Result<file::StephpCapStdFile, String> {
+        let options = options
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let fd = self
+            .inner
+            .open_with(path, &options)
+            .map_err(|e| e.to_string())?;
         Ok(file::StephpCapStdFile {
             inner: Mutex::new(fd),
         })
