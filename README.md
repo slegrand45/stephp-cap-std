@@ -1,6 +1,6 @@
 # stephp-cap-std
 
-**Version 0.1.0**
+**Version 0.2.0**
 
 `stephp-cap-std` is an experimental PHP extension written in Rust. It provides bindings to the [cap-std](https://github.com/bytecodealliance/cap-std) crate, offering a capability-based security approach for filesystem access. This project is made possible thanks to the [ext-php-rs](https://github.com/extphprs/ext-php-rs) project, which provides the tools to build PHP extensions with Rust.
 
@@ -60,16 +60,16 @@ try {
     // From this point, $dir can ONLY act within /tmp/sandbox.
     
     // Write a file
-    $dir->write_file("message.txt", "Hello Secure World!");
+    $dir->write("message.txt", "Hello Secure World!");
     
-    // Read a file
-    echo $dir->read_file("message.txt"); // Outputs: Hello Secure World!
+    // Read a file (as string)
+    echo $dir->read_to_string("message.txt"); // Outputs: Hello Secure World!
     
     // Create a subdirectory
     $dir->create_dir("logs");
     
     // Attempting to access the parent directory will fail (cap-std security)
-    // $dir->read_file("../passwd"); // This will trigger a Rust error/Permission denied
+    // $dir->read_to_string("../passwd"); // This will trigger a Rust error/Permission denied
     
     // List contents
     $entries = $dir->read_dir(".");
@@ -87,22 +87,27 @@ try {
 The main exposed classes include:
 
 *   **`StephpCapStdAmbientAuthority`**: Represents the authority to access global system resources.
-*   **`StephpCapStdDir`**: Represents an opened directory. Methods such as:
-    *   `open(string $path)`
-    *   `open_dir(string $path)`
-    *   `create_dir(string $path)`
-    *   `read_file(string $path)`
-    *   `write_file(string $path, string $content)`
-    *   `remove_file(string $path)`
-    *   `remove_dir(string $path)`
-    *   `metadata(string $path)`
-    *   `canonicalize(string $path)`
-    *   ...
-*   **`StephpCapStdFile`**: Represents an opened file handle. It provides low-level operations such as: 
-    *   `read(int $length)`
-    *   `write(string $data)`
-    *   `sync_all()`
-    *   ...
+*   **`StephpCapStdDir`**: Represents an opened directory. Key methods:
+    *   `open(string $path)` – open a file read-only
+    *   `open_with(string $path, StephpCapStdOpenOptions $options)` – open with custom options
+    *   `open_dir(string $path)` – open a subdirectory
+    *   `create(string $path)` – create a file for writing
+    *   `create_dir(string $path)`, `create_dir_all(string $path)`
+    *   `read(string $path)` – read file as raw bytes
+    *   `read_to_string(string $path)` – read file as UTF-8 string
+    *   `write(string $path, string|bytes $data)` – write to a file
+    *   `remove_file(string $path)`, `remove_dir(string $path)`, `remove_dir_all(string $path)`
+    *   `exists(string $path)`, `is_file(string $path)`, `is_dir(string $path)`
+    *   `metadata(string $path)`, `symlink_metadata(string $path)`, `canonicalize(string $path)`
+    *   `copy()`, `rename()`, `hard_link()`, `read_link()`, `symlink()` (Unix)
+    *   `set_permissions(string $path, StephpCapStdPermissions $perm)` (Unix)
+    *   `entries()`, `read_dir(string $path)`
+*   **`StephpCapStdFile`**: Represents an opened file handle. Key operations:
+    *   `read(int $length)`, `read_to_end()`, `read_to_string()`
+    *   `write(string $data)`, `flush()`
+    *   `sync_all()`, `sync_data()`, `set_len(int $size)`
+    *   `metadata()`, `set_permissions()`
+    *   `stream_position()`, `seek(int $offset, int $whence)`, `seek_relative(int $offset)`, `rewind()`, `stream_len()`
 
 Other classes like `StephpCapStdMetadata`, `StephpCapStdPermissions`, and `StephpCapStdEntries` are also used internally or returned by the methods above.
 
@@ -117,7 +122,7 @@ If you mix this extension with native PHP functions on the same files, you **mus
 **Potential conflict example:**
 
 ```php
-$dir->write_file("test.txt", "data");
+$dir->write("test.txt", "data");
 
 // If you use the native PHP function immediately after:
 if (file_exists("/tmp/sandbox/test.txt")) {
