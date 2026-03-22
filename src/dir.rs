@@ -5,6 +5,7 @@ use crate::file;
 use crate::metadata;
 use crate::metadata::StephpCapStdMetadata;
 use crate::openoptions::StephpCapStdOpenOptions;
+use crate::permissions::StephpCapStdPermissions;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
@@ -208,6 +209,16 @@ impl StephpCapStdDir {
             .symlink_metadata(path)
             .map_err(|e| e.to_string())?;
         Ok(metadata::StephpCapStdMetadata { inner: metadata })
+    }
+
+    #[cfg(unix)]
+    #[php(name = "set_permissions")]
+    pub fn set_permissions(&self, path: &str, perm: &StephpCapStdPermissions) -> Result<(), String> {
+        let permissions = perm.inner.borrow().clone();
+        self.inner
+            .set_permissions(path, permissions)
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
 
     #[cfg(unix)]

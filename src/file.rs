@@ -7,6 +7,7 @@ use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
 use std::io::Read;
 use std::io::Seek;
+use std::io::SeekFrom;
 use std::io::Write;
 use std::sync::Mutex;
 
@@ -152,5 +153,41 @@ impl StephpCapStdFile {
             .map_err(|_| "Mutex lock error".to_string())?;
         file.seek_relative(offset).map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    #[php(name = "seek")]
+    pub fn seek(&self, offset: i64, whence: i32) -> Result<u64, String> {
+        let seek_from = match whence {
+            0 => {
+                if offset < 0 {
+                    return Err("seek: offset must be non-negative for SEEK_SET".to_string());
+                }
+                SeekFrom::Start(offset as u64)
+            }
+            1 => SeekFrom::Current(offset),
+            2 => SeekFrom::End(offset),
+            _ => {
+                return Err(format!(
+                    "Invalid whence: {}. Use SEEK_SET(0), SEEK_CUR(1), or SEEK_END(2)",
+                    whence
+                ))
+            }
+        };
+        let mut file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let pos = file.seek(seek_from).map_err(|e| e.to_string())?;
+        Ok(pos)
+    }
+
+    #[php(name = "stream_len")]
+    pub fn stream_len(&self) -> Result<u64, String> {
+        let file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let len = file.metadata().map_err(|e| e.to_string())?.len();
+        Ok(len)
     }
 }

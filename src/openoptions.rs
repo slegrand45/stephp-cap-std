@@ -24,37 +24,37 @@ impl StephpCapStdOpenOptions {
     }
 
     #[php(name = "write")]
-    pub fn write(&mut self, read: bool) {
+    pub fn write(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
-            options.write(read);
+            options.write(enable);
         }
     }
 
     #[php(name = "append")]
-    pub fn append(&mut self, read: bool) {
+    pub fn append(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
-            options.append(read);
+            options.append(enable);
         }
     }
 
     #[php(name = "truncate")]
-    pub fn truncate(&mut self, read: bool) {
+    pub fn truncate(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
-            options.truncate(read);
+            options.truncate(enable);
         }
     }
 
     #[php(name = "create")]
-    pub fn create(&mut self, read: bool) {
+    pub fn create(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
-            options.create(read);
+            options.create(enable);
         }
     }
 
     #[php(name = "create_new")]
-    pub fn create_new(&mut self, read: bool) {
+    pub fn create_new(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
-            options.create_new(read);
+            options.create_new(enable);
         }
     }
 }
