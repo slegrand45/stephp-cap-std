@@ -9,7 +9,7 @@ categories = ["api-bindings", "filesystem"]
 crate-type = ["cdylib"]
 
 [dependencies]
-ext-php-rs = "0.15.6"
+ext-php-rs = "0.15.12"
 cap-std = "4.0.2"
 
 [profile.release]
