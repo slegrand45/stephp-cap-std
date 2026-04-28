@@ -5,6 +5,7 @@ use crate::permissions::StephpCapStdPermissions;
 use ext_php_rs::binary::Binary;
 use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
+use fs_set_times::{SetTimes, SystemTimeSpec};
 use std::io::Read;
 use std::io::Seek;
 use std::io::SeekFrom;
@@ -192,5 +193,35 @@ impl StephpCapStdFile {
             .map_err(|_| "Mutex lock error".to_string())?;
         let len = file.metadata().map_err(|e| e.to_string())?.len();
         Ok(len)
+    }
+
+    #[php(name = "try_clone")]
+    pub fn try_clone(&self) -> Result<Self, String> {
+        let file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        let clone = file.try_clone().map_err(|e| e.to_string())?;
+        Ok(Self {
+            inner: Mutex::new(clone),
+        })
+    }
+
+    #[php(name = "set_times")]
+    pub fn set_times(
+        &self,
+        atime: Option<&crate::systemtime::StephpCapStdSystemTime>,
+        mtime: Option<&crate::systemtime::StephpCapStdSystemTime>,
+    ) -> Result<(), String> {
+        let file = self
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
+        file.set_times(
+            atime.map(|t| SystemTimeSpec::Absolute(t.inner.into_std())),
+            mtime.map(|t| SystemTimeSpec::Absolute(t.inner.into_std())),
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(())
     }
 }

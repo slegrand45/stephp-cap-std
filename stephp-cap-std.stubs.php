@@ -66,6 +66,8 @@ namespace {
 
         public function symlink(string $original, string $link): void {}
 
+        public function try_clone(): \StephpCapStdDir {}
+
         public function __construct() {}
     }
 
@@ -172,6 +174,10 @@ namespace {
 
         public function stream_len(): int {}
 
+        public function try_clone(): \StephpCapStdFile {}
+
+        public function set_times(?\StephpCapStdSystemTime $atime = null, ?\StephpCapStdSystemTime $mtime = null): void {}
+
         public function __construct() {}
     }
 
@@ -186,6 +192,8 @@ namespace {
     }
 
     class StephpCapStdSystemTime {
+        public static function from_unix_timestamp(int $seconds): \StephpCapStdSystemTime {}
+
         public function to_unix_timestamp_seconds_utc(): int {}
 
         public function __construct() {}
@@ -219,6 +227,8 @@ namespace {
         public function create(bool $enable): void {}
 
         public function create_new(bool $enable): void {}
+
+        public function mode(int $mode): void {}
 
         public function __construct() {}
     }

@@ -7,6 +7,7 @@ use crate::metadata::StephpCapStdMetadata;
 use crate::openoptions::StephpCapStdOpenOptions;
 use crate::permissions::StephpCapStdPermissions;
 use ext_php_rs::binary::Binary;
+
 use ext_php_rs::binary_slice::BinarySlice;
 use ext_php_rs::prelude::*;
 use std::sync::Mutex;
@@ -250,5 +251,11 @@ impl StephpCapStdDir {
             let _ = (original, link);
             Err("symlink is only available on Unix systems".to_string())
         }
+    }
+
+    #[php(name = "try_clone")]
+    pub fn try_clone(&self) -> Result<Self, String> {
+        let clone = self.inner.try_clone().map_err(|e| e.to_string())?;
+        Ok(Self { inner: clone })
     }
 }

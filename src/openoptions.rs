@@ -1,5 +1,7 @@
 #![cfg_attr(windows, feature(abi_vectorcall))]
 
+#[cfg(unix)]
+use cap_std::fs::OpenOptionsExt;
 use ext_php_rs::prelude::*;
 use std::sync::Mutex;
 
@@ -55,6 +57,20 @@ impl StephpCapStdOpenOptions {
     pub fn create_new(&mut self, enable: bool) {
         if let Ok(mut options) = self.inner.lock() {
             options.create_new(enable);
+        }
+    }
+
+    #[php(name = "mode")]
+    pub fn mode(&mut self, mode: u32) {
+        #[cfg(unix)]
+        {
+            if let Ok(mut options) = self.inner.lock() {
+                options.mode(mode);
+            }
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = mode;
         }
     }
 }
