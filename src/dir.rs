@@ -211,46 +211,44 @@ impl StephpCapStdDir {
         Ok(metadata::StephpCapStdMetadata { inner: metadata })
     }
 
-    #[cfg(unix)]
     #[php(name = "set_permissions")]
     pub fn set_permissions(
         &self,
         path: &str,
         perm: &StephpCapStdPermissions,
     ) -> Result<(), String> {
-        let permissions = perm
-            .inner
-            .lock()
-            .map_err(|_| "Mutex lock error".to_string())?
-            .clone();
-        self.inner
-            .set_permissions(path, permissions)
-            .map_err(|e| e.to_string())?;
-        Ok(())
+        #[cfg(unix)]
+        {
+            let permissions = perm
+                .inner
+                .lock()
+                .map_err(|_| "Mutex lock error".to_string())?
+                .clone();
+            self.inner
+                .set_permissions(path, permissions)
+                .map_err(|e| e.to_string())?;
+            Ok(())
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (path, perm);
+            Err("set_permissions is only available on Unix systems".to_string())
+        }
     }
 
-    #[cfg(not(unix))]
-    #[php(name = "set_permissions")]
-    pub fn set_permissions(
-        &self,
-        _path: &str,
-        _perm: &StephpCapStdPermissions,
-    ) -> Result<(), String> {
-        Err("set_permissions is only available on Unix systems".to_string())
-    }
-
-    #[cfg(unix)]
     #[php(name = "symlink")]
     pub fn symlink(&self, original: &str, link: &str) -> Result<(), String> {
-        self.inner
-            .symlink(original, link)
-            .map_err(|e| e.to_string())?;
-        Ok(())
-    }
-
-    #[cfg(not(unix))]
-    #[php(name = "symlink")]
-    pub fn symlink(&self, _original: &str, _link: &str) -> Result<(), String> {
-        Err("symlink is only available on Unix systems".to_string())
+        #[cfg(unix)]
+        {
+            self.inner
+                .symlink(original, link)
+                .map_err(|e| e.to_string())?;
+            Ok(())
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (original, link);
+            Err("symlink is only available on Unix systems".to_string())
+        }
     }
 }
