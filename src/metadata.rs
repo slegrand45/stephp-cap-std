@@ -6,7 +6,7 @@ use crate::systemtime;
 use crate::systemtime::StephpCapStdSystemTime;
 use cap_std::fs::MetadataExt;
 use ext_php_rs::prelude::*;
-use std::cell::RefCell;
+use std::sync::Mutex;
 
 #[php_class]
 pub struct StephpCapStdMetadata {
@@ -45,7 +45,7 @@ impl StephpCapStdMetadata {
     pub fn permissions(&self) -> permissions::StephpCapStdPermissions {
         let permissions = self.inner.permissions();
         permissions::StephpCapStdPermissions {
-            inner: RefCell::new(permissions),
+            inner: Mutex::new(permissions),
         }
     }
 

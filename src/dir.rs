@@ -218,7 +218,11 @@ impl StephpCapStdDir {
         path: &str,
         perm: &StephpCapStdPermissions,
     ) -> Result<(), String> {
-        let permissions = perm.inner.borrow().clone();
+        let permissions = perm
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?
+            .clone();
         self.inner
             .set_permissions(path, permissions)
             .map_err(|e| e.to_string())?;
