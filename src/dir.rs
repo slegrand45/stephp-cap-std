@@ -213,7 +213,11 @@ impl StephpCapStdDir {
 
     #[cfg(unix)]
     #[php(name = "set_permissions")]
-    pub fn set_permissions(&self, path: &str, perm: &StephpCapStdPermissions) -> Result<(), String> {
+    pub fn set_permissions(
+        &self,
+        path: &str,
+        perm: &StephpCapStdPermissions,
+    ) -> Result<(), String> {
         let permissions = perm.inner.borrow().clone();
         self.inner
             .set_permissions(path, permissions)

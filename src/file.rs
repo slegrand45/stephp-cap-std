@@ -170,7 +170,7 @@ impl StephpCapStdFile {
                 return Err(format!(
                     "Invalid whence: {}. Use SEEK_SET(0), SEEK_CUR(1), or SEEK_END(2)",
                     whence
-                ))
+                ));
             }
         };
         let mut file = self
