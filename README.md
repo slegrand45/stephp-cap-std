@@ -1,15 +1,19 @@
 # stephp-cap-std
 
-**Version 0.2.0**
+**Version 0.3.0**
 
-`stephp-cap-std` is an experimental PHP extension written in Rust. It provides bindings to the [cap-std](https://github.com/bytecodealliance/cap-std) crate, offering a capability-based security approach for filesystem access. This project is made possible thanks to the [ext-php-rs](https://github.com/extphprs/ext-php-rs) project, which provides the tools to build PHP extensions with Rust.
+`stephp-cap-std` is an experimental PHP extension written in Rust. It provides bindings to the [cap-std](https://github.com/bytecodealliance/cap-std) crate, offering a **capability-based security** approach for filesystem access. This project is made possible thanks to the [ext-php-rs](https://github.com/extphprs/ext-php-rs) project, which provides the tools to build PHP extensions with Rust.
 
-The primary goal is to enable robust **sandboxing** within PHP scripts. Unlike native PHP filesystem functions, this extension ensures that once a directory is opened, it is impossible to access files outside of that directory tree (e.g., via `../../`), providing strong protection against directory traversal attacks.
+The primary goal is to enable robust **sandboxing** within PHP scripts. Unlike native PHP filesystem functions, this extension ensures that once a directory handle is obtained, it is impossible to access files outside of that directory tree (e.g., via `../../`), providing strong protection against directory traversal attacks.
+
+## 🤖 AI Statement
+
+This project leverages Artificial Intelligence. This `README.md` file, as well as significant portions of the source code and the test suite, have been generated or refined by AI models.
 
 ## Prerequisites
 
 *   **Linux** (or a compatible Unix system)
-*   **Rust** (via `rustup`, 2021 edition)
+*   **Rust** (via `rustup`, **2024 edition** as specified in `Cargo.toml`)
 *   **PHP** (version 8.0+, with development headers installed, e.g., `php-dev` or `php-devel`)
 *   **Clang** (required for binding generation by `ext-php-rs`)
 
@@ -29,7 +33,6 @@ The primary goal is to enable robust **sandboxing** within PHP scripts. Unlike n
     The generated artifact will be located at `target/release/libstephp_cap_std.so`.
 
 3.  **Enable the extension:**
-    You can either add the extension to your `php.ini` file or include it dynamically during CLI execution.
 
     **Option A: Command line (for testing)**
     ```bash
@@ -44,36 +47,41 @@ The primary goal is to enable robust **sandboxing** within PHP scripts. Unlike n
 
 ## Usage Example
 
-Here is a simple example showing how to open a directory securely and manipulate files within it.
+Capability-based security means you don't use global paths. You start with an "Ambient Authority" to open a specific entry-point directory, and then work exclusively through that handle.
 
 ```php
 <?php
 
-// 1. Obtain the ambient authority (entry point for system resources)
+// 1. Obtain the ambient authority
 $auth = stephp_cap_std_ambient_authority();
 
-// 2. Open a root directory for the sandbox (e.g., /tmp/sandbox)
-// If the path does not exist, an exception (String) will be thrown.
+// 2. Open a root directory for the sandbox
 try {
     $dir = stephp_cap_std_open_ambient_dir($auth, '/tmp/sandbox');
     
-    // From this point, $dir can ONLY act within /tmp/sandbox.
+    // Write a file with specific options
+    $options = new StephpCapStdOpenOptions();
+    $options->write(true);
+    $options->create(true);
+    $options->truncate(true);
     
-    // Write a file
-    $dir->write("message.txt", "Hello Secure World!");
+    $file = $dir->open_with("data.log", $options);
+    $file->write("Log entry at " . date('Y-m-d H:i:s') . "\n");
+    $file->flush();
     
-    // Read a file (as string)
-    echo $dir->read_to_string("message.txt"); // Outputs: Hello Secure World!
+    // Operations between directories (Capability approach)
+    $backupDir = $dir->open_dir("backups");
+    $dir->copy("data.log", $backupDir, "data.log.bak");
     
-    // Create a subdirectory
-    $dir->create_dir("logs");
+    // Metadata and Time
+    $meta = $dir->metadata("data.log");
+    $mtime = $meta->modified();
+    echo "Last modified: " . $mtime->to_unix_timestamp_seconds_utc() . "\n";
     
-    // Attempting to access the parent directory will fail (cap-std security)
-    // $dir->read_to_string("../passwd"); // This will trigger a Rust error/Permission denied
-    
-    // List contents
-    $entries = $dir->read_dir(".");
-    var_dump($entries);
+    // Safe listing
+    foreach ($dir->read_dir(".") as $name) {
+        echo "Found: $name\n";
+    }
     
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
@@ -82,68 +90,60 @@ try {
 
 ## Available API
 
-> **Note:** The bindings are currently a work in progress and do not yet cover the entire `cap-std` API. Many more methods are available than those listed below.
+As this extension provides direct bindings to the Rust [cap-std](https://docs.rs/cap-std/) library, it is highly recommended to consult its official documentation to understand the detailed behavior of each method and their respective parameters.
 
-The main exposed classes include:
+### Global Functions
+- `stephp_cap_std_ambient_authority(): StephpCapStdAmbientAuthority`
+- `stephp_cap_std_open_ambient_dir(StephpCapStdAmbientAuthority $auth, string $path): StephpCapStdDir`
 
-*   **`StephpCapStdAmbientAuthority`**: Represents the authority to access global system resources.
-*   **`StephpCapStdDir`**: Represents an opened directory. Key methods:
-    *   `open(string $path)` – open a file read-only
-    *   `open_with(string $path, StephpCapStdOpenOptions $options)` – open with custom options
-    *   `open_dir(string $path)` – open a subdirectory
-    *   `create(string $path)` – create a file for writing
-    *   `create_dir(string $path)`, `create_dir_all(string $path)`
-    *   `read(string $path)` – read file as raw bytes
-    *   `read_to_string(string $path)` – read file as UTF-8 string
-    *   `write(string $path, string|bytes $data)` – write to a file
-    *   `remove_file(string $path)`, `remove_dir(string $path)`, `remove_dir_all(string $path)`
-    *   `exists(string $path)`, `is_file(string $path)`, `is_dir(string $path)`
-    *   `metadata(string $path)`, `symlink_metadata(string $path)`, `canonicalize(string $path)`
-    *   `copy()`, `rename()`, `hard_link()`, `read_link()`, `symlink()` (Unix)
-    *   `set_permissions(string $path, StephpCapStdPermissions $perm)` (Unix)
-    *   `entries()`, `read_dir(string $path)`
-*   **`StephpCapStdFile`**: Represents an opened file handle. Key operations:
-    *   `read(int $length)`, `read_to_end()`, `read_to_string()`
-    *   `write(string $data)`, `flush()`
-    *   `sync_all()`, `sync_data()`, `set_len(int $size)`
-    *   `metadata()`, `set_permissions()`
-    *   `stream_position()`, `seek(int $offset, int $whence)`, `seek_relative(int $offset)`, `rewind()`, `stream_len()`
+### `StephpCapStdDir` (Directory Handle)
+Main entry point for scoped filesystem operations.
+- **Files**: `open(string $path)`, `open_with(string $path, StephpCapStdOpenOptions $opts)`, `create(string $path)`, `read(string $path)`, `read_to_string(string $path)`, `write(string $path, string|Binary $data)`, `remove_file(string $path)`
+- **Directories**: `open_dir(string $path)`, `create_dir(string $path)`, `create_dir_all(string $path)`, `remove_dir(string $path)`, `remove_dir_all(string $path)`, `read_dir(string $path): StephpCapStdEntries`
+- **Inter-Directory**: `copy(string $from, StephpCapStdDir $to_dir, string $to)`, `rename(string $from, StephpCapStdDir $to_dir, string $to)`, `hard_link(string $src, StephpCapStdDir $dst_dir, string $dst)`
+- **Metadata/Info**: `exists(string $path)`, `is_file(string $path)`, `is_dir(string $path)`, `metadata(string $path)`, `symlink_metadata(string $path)`, `dir_metadata()`, `canonicalize(string $path)`, `read_link(string $path)`
+- **System**: `set_permissions(string $path, StephpCapStdPermissions $p)`, `symlink(string $orig, string $link)`
 
-Other classes like `StephpCapStdMetadata`, `StephpCapStdPermissions`, and `StephpCapStdEntries` are also used internally or returned by the methods above.
+### `StephpCapStdFile` (File Handle)
+- **IO**: `read(int $len)`, `read_to_end()`, `read_to_string()`, `write(string $data)`, `flush()`
+- **Position**: `seek(int $offset, int $whence)`, `seek_relative(int $offset)`, `rewind()`, `stream_position()`, `stream_len()`
+- **Management**: `sync_all()`, `sync_data()`, `set_len(int $size)`, `metadata()`, `set_permissions(StephpCapStdPermissions $p)`
+
+### `StephpCapStdOpenOptions`
+- `read(bool)`, `write(bool)`, `append(bool)`, `truncate(bool)`, `create(bool)`, `create_new(bool)`
+
+### `StephpCapStdMetadata`
+- `is_dir()`, `is_file()`, `is_symlink()`, `len()`, `size()`, `permissions()`
+- `modified()`, `accessed()`, `created()` (Returns `StephpCapStdSystemTime`)
+- Linux/Unix specific: `dev()`, `ino()`, `mode()`, `uid()`, `gid()`, `nlink()`, `blksize()`, `blocks()`, `atime()`, `mtime()`, `ctime()`
+
+### `StephpCapStdEntries`
+Implements `Iterator` and `Countable`. Returned by `read_dir()`.
+- `count()`, `rewind()`, `current()`, `key()`, `next()`, `valid()`
+
+### Supporting Classes
+- `StephpCapStdPermissions`: `readonly()`, `set_readonly(bool)`, `mode()`, `set_mode(int)`
+- `StephpCapStdSystemTime`: `to_unix_timestamp_seconds_utc()`
+- `StephpCapStdFileType`: `is_dir()`, `is_file()`, `is_symlink()`
+
+## 🧪 Testing
+
+The project includes a comprehensive set of tests located in the `php/` directory. These tests serve as both verification and usage examples.
+
+To run the tests:
+```bash
+cd php/
+php -d extension=../target/release/libstephp_cap_std.so test.php
+```
 
 ## Limitations and Warnings
 
 ### ⚠️ PHP Stat Cache (`clearstatcache`)
-
-This extension performs system operations via Rust, bypassing PHP's standard streams. However, PHP maintains an internal cache for file metadata operations (functions like `file_exists`, `is_file`, `stat`, etc.).
-
-If you mix this extension with native PHP functions on the same files, you **must** be aware of this cache.
-
-**Potential conflict example:**
-
-```php
-$dir->write("test.txt", "data");
-
-// If you use the native PHP function immediately after:
-if (file_exists("/tmp/sandbox/test.txt")) {
-    // This might return FALSE if PHP cached the file's absence 
-    // before the Rust write operation.
-}
-```
-
-**Solution:**
-If you encounter inconsistencies when using both systems together, call the native PHP function:
-
-```php
-clearstatcache();
-```
-
-It is recommended to use the methods provided by the `$dir` object (such as `$dir->exists()`, `$dir->is_file()`) whenever possible, as they query the filesystem directly via Rust, ensuring up-to-date data.
+This extension bypasses PHP's standard streams. PHP's internal cache for functions like `file_exists()` might not reflect changes made via this extension.
+**Solution**: Use the methods on the `$dir` object (e.g., `$dir->exists()`) or call `clearstatcache()` in PHP.
 
 ### Performance
-
-While Rust is extremely fast, crossing the FFI (Foreign Function Interface) boundary between PHP and Rust has a cost. For massive reads/writes of very small files, this might be less performant than a pure native solution, but it provides superior security guarantees.
+FFI boundary crossings between PHP and Rust have a minor overhead. For security-critical sandboxing, this is a negligible trade-off.
 
 ## License
-
 This project is licensed under the MIT License.
