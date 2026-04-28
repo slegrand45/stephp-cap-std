@@ -60,7 +60,10 @@ impl StephpCapStdFile {
 
     #[php(name = "set_permissions")]
     pub fn set_permissions(&self, permissions: &StephpCapStdPermissions) -> Result<(), String> {
-        let permissions = permissions.inner.borrow();
+        let permissions = permissions
+            .inner
+            .lock()
+            .map_err(|_| "Mutex lock error".to_string())?;
         let file = self
             .inner
             .lock()
