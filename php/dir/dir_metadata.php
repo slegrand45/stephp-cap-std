@@ -51,6 +51,26 @@ function dir_metadata(string $root) {
     } else {
         ko('dir: dir_metadata: gid() should be greater or equal to zero, returned ' . $gid);
     }
+
+    if ($metadata->ino() > 0) {
+        ok('dir: dir_metadata: ino() > 0');
+    } else {
+        ko('dir: dir_metadata: ino() should be > 0');
+    }
+
+    if ($metadata->nlink() >= 1) {
+        ok('dir: dir_metadata: nlink() >= 1');
+    } else {
+        ko('dir: dir_metadata: nlink() should be >= 1');
+    }
+
+    $atime = $metadata->accessed()->to_unix_timestamp_seconds_utc();
+    if ($atime > 0) {
+        ok('dir: dir_metadata: accessed() timestamp > 0');
+    } else {
+        ko('dir: dir_metadata: accessed() timestamp should be > 0');
+    }
+
     $size = $metadata->size();
     if ($size >= 0) {
         ok('dir: dir_metadata: size() > 0, = ' . $size);

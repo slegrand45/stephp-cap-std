@@ -5,6 +5,11 @@ namespace tests\dir;
 function read_dir(string $root) {
     $ambient_auth = stephp_cap_std_ambient_authority();
     $dir = stephp_cap_std_open_ambient_dir($ambient_auth, $root);
+
+    // Ensure we have at least one file for the rewind test
+    $testFile = 'test-file-for-read-dir';
+    $dir->write($testFile, 'test content');
+
     $rdir = $dir->read_dir(".");
     if (is_a($rdir, 'StephpCapStdEntries')) {
         ok('dir: read_dir: read_dir() returned an StephpCapStdEntries object');
@@ -47,4 +52,6 @@ function read_dir(string $root) {
     } else {
         ko('dir: read_dir: rewind: empty directory or wrong valid() method');
     }
+
+    $dir->remove_file($testFile);
 }

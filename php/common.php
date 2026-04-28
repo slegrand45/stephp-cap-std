@@ -24,3 +24,14 @@ function result() {
         echo '💥 🔥  FAILURE!: ' . $nbKO . ' failure(s)' . "\n";
     }
 }
+
+function recursive_rmdir(string $dir) {
+    if (! is_dir($dir)) {
+        return;
+    }
+    $files = array_diff(scandir($dir), array('.', '..'));
+    foreach ($files as $file) {
+        (is_dir("$dir/$file")) ? recursive_rmdir("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
+}
