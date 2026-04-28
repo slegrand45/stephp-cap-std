@@ -229,6 +229,16 @@ impl StephpCapStdDir {
         Ok(())
     }
 
+    #[cfg(not(unix))]
+    #[php(name = "set_permissions")]
+    pub fn set_permissions(
+        &self,
+        _path: &str,
+        _perm: &StephpCapStdPermissions,
+    ) -> Result<(), String> {
+        Err("set_permissions is only available on Unix systems".to_string())
+    }
+
     #[cfg(unix)]
     #[php(name = "symlink")]
     pub fn symlink(&self, original: &str, link: &str) -> Result<(), String> {
@@ -236,5 +246,11 @@ impl StephpCapStdDir {
             .symlink(original, link)
             .map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    #[cfg(not(unix))]
+    #[php(name = "symlink")]
+    pub fn symlink(&self, _original: &str, _link: &str) -> Result<(), String> {
+        Err("symlink is only available on Unix systems".to_string())
     }
 }
